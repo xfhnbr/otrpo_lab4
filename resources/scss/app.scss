@@ -1,0 +1,145 @@
+@use 'sass:list';
+@import '~bootstrap/scss/bootstrap';
+
+$light: #ffe8d6; // основной цвет фона
+$dark: #6b705c; // основной цвет текста
+
+$primary: #94a364; // цвет лого, названия и фона кнопки
+$header-bkg: #e6d0bc; //цвет фона шапки
+$header-border: black; // цвет границ шапки
+$button-color: #f0ead2; // цвет текста кнопки
+$logo-color: #f0ead2; //цвет текста лого
+
+$label-bkg: rgba(0,0,0,0.5); // фон подписи картинки
+$label-color: white; // цвет подписи
+
+$card-shadow: rgba(0,0,0,0.7); // тень карточки
+$card-colors: #edede9, #d6ccc2, #f5ebe0, #e3d5ca, #d5bdaf; // цвета карточек
+
+$footer-border: #ccc; // граница подвала
+$footer-bkg: #cb997e; // фон подвала
+
+// миксин для карточек
+@mixin card-style($bg) {
+    background: $bg;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px $card-shadow;
+}
+
+// общие стили
+
+html, body {
+    margin: 0;
+}
+
+main {
+    flex: 1;
+}
+
+body {
+    margin: 0;
+    background: $light;
+    color: $dark;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+
+    h1 {
+        width: 100%;
+        margin: 30px 0;
+    }
+}
+
+.nav-header {
+    background: $header-bkg;
+    border: 1px solid $header-border;
+    box-sizing: border-box;
+
+    .logo {
+        background: $primary;
+        color: $logo-color;
+        width: 30px;
+        height: 104px;
+        line-height: 172px;
+        margin-top: -68px;
+    }
+
+    .site-name {
+        color: $primary;
+    }
+
+    .btn {
+        background: $primary;
+        color: $button-color;
+        cursor: pointer;
+    }
+}
+
+.toast {
+    border: 1px solid $primary;
+    overflow: hidden;
+    .toast-header {
+        background-color: $header-bkg;
+        color: $dark;
+    }
+
+    .toast-body {
+        background-color: $light;
+    }
+}
+
+// карточки
+.card {
+
+    .card-img-top {
+        overflow: hidden;
+        position: relative;
+
+        img {
+            object-fit: cover;
+        }
+    }
+
+}
+
+// цвета карточек
+@for $i from 1 through list.length($card-colors) {
+    .col-12.col-md-6.col-lg-4:nth-child(#{list.length($card-colors)}n + #{$i}) .card {
+        @include card-style(list.nth($card-colors, $i));
+    }
+}
+
+// подвал
+footer {
+    margin-top: 40px;
+    border-top: 1px solid $footer-border;
+    padding: 15px 0;
+    background: $footer-bkg;
+
+    .footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .socials {
+            gap: 5px;
+
+            img {
+                width: 22px;
+            }
+        }
+    }
+}
+
+@media (min-width: 1500px) {
+    .col-xxxl-3 {
+        flex: 0 0 auto;
+        width: 33%;
+    }
+}
