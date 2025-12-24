@@ -13,6 +13,7 @@ class Museum extends Model
 	use SoftDeletes;
 	
     protected $fillable = [
+        'user_id',
         'name_ru',
         'name_original',
         'description',
@@ -148,5 +149,10 @@ class Museum extends Model
         }
         
         return $description;
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

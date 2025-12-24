@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Добавить новый музей - Музеи Рима</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="{{ mix('css/app.css') }}">
+    @vite('resources/scss/app.scss')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -59,6 +59,6 @@
         </div>
     </footer>
 
-    <script src="{{ mix('js/app.js') }}"></script>
+    @vite('resources/js/app.js')
 </body>
 </html>

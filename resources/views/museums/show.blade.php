@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>{{ $museum->name_ru }} - Музеи Рима</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="{{ mix('css/app.css') }}">
+    @vite('resources/scss/app.scss')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -82,6 +82,17 @@
                                     </a>
                                 </p>
                             @endif
+                            <p><strong><i class="fas fa-user"></i> Владелец:</strong><br>
+                                @if($museum->user_id)
+                                    <a href="{{ route('users.museums.index', $museum->user_id) }}">
+                                        <i class="fas fa-user"></i> User ID: {{ $museum->user_id }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">
+                                        <i class="fas fa-user"></i> Без владельца
+                                    </span>
+                                @endif
+                            </p>
 
                             <div class="d-grid gap-2 mt-4">
                                 <a href="{{ route('museums.edit', $museum) }}" class="btn btn-warning">
@@ -108,7 +119,7 @@
 
     <footer class="mt-5">
         <div class="container footer">
-            <div class="author">Шестаков Дмитрий</div>
+            <div class="author">Фамилия Имя</div>
             <div class="socials">
                 <a href="#"><img src="{{ asset('storage/museums/vk.svg') }}" alt="VK" width="24"></a>
                 <a href="#"><img src="{{ asset('storage/museums/telegram.svg') }}" alt="Telegram" width="24"></a>
@@ -116,6 +127,6 @@
         </div>
     </footer>
 
-    <script src="{{ mix('js/app.js') }}"></script>
+    @vite('resources/js/app.js')
 </body>
 </html>

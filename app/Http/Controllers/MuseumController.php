@@ -3,18 +3,37 @@
 namespace App\Http\Controllers;
 
 use App\Models\Museum;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
 
 class MuseumController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $user_id = $request->get('user_id');
+
+        // Если user_id передан - показываем музеи этого пользователя
+        if ($user_id) {
+            $user = User::findOrFail($user_id);
+            $museums = Museum::where('user_id', $user_id)->with('popovers')->orderBy('id', 'asc')->get();
+            return view('museums.index', compact('museums', 'user'));
+        }
+        
+        // Если user_id не передан - показываем все музеи
         $museums = Museum::with('popovers')->orderBy('id', 'asc')->get();
         return view('museums.index', compact('museums'));
+    }
+
+    public function userMuseums($user_id)
+    {
+        $user = User::findOrFail($user_id);
+        $museums = Museum::where('user_id', $user_id)->get();
+        return view('museums.index', compact('museums', 'user'));
     }
 
     /**
@@ -41,6 +60,8 @@ class MuseumController extends Controller
             'website_url' => 'nullable|url',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
+        
+        $validated['user_id'] = auth()->id();
 
         // Обработка изображения
         if ($request->hasFile('image')) {
@@ -79,6 +100,11 @@ class MuseumController extends Controller
 		if ($museum->trashed()) {
             abort(404, 'Музей был удален');
         }
+        
+        if (!Gate::allows('update-museum', $museum)) {
+            abort(403, 'У вас нет прав для редактирования этого музея');
+        }
+
         return view('museums.edit', compact('museum'));
     }
 
@@ -89,6 +115,10 @@ class MuseumController extends Controller
     {
 		if ($museum->trashed()) {
             abort(404, 'Музей был удален');
+        }
+
+        if (!Gate::allows('update-museum', $museum)) {
+            abort(403, 'У вас нет прав для редактирования этого музея');
         }
 		
         $validated = $request->validate([
@@ -130,6 +160,10 @@ class MuseumController extends Controller
 			return redirect()->route('museums.index')
 				->with('error', 'Музей уже удален');
 		}
+
+        if (!Gate::allows('delete-museum', $museum)) {
+            abort(403, 'У вас нет прав для удаления этого музея');
+        }
 		
 		$museum->delete();
 		
@@ -146,6 +180,10 @@ class MuseumController extends Controller
                 ->with('error', 'Музей не был удален');
         }
         
+        if (!Gate::allows('restore-museum', $museum)) {
+            abort(403, 'Только администратор может восстанавливать удаленные музеи');
+        }
+
         $museum->restore();
         
         return redirect()->route('museums.show', $museum)
@@ -156,6 +194,10 @@ class MuseumController extends Controller
     {
         $museum = Museum::withTrashed()->findOrFail($id);
         
+        if (!Gate::allows('force-delete-museum', $museum)) {
+            abort(403, 'Только администратор может полностью удалять музеи');
+        }
+
         if ($museum->image_filename) {
             $path = 'museums/' . $museum->image_filename;
             
@@ -174,6 +216,10 @@ class MuseumController extends Controller
 	
 	public function trash()
 	{
+        if (!Gate::allows('view-trash')) {
+            abort(403, 'Только администратор может просматривать корзину');
+        }
+
 		$museums = Museum::onlyTrashed()
 			->with('popovers')
 			->orderBy('deleted_at', 'desc')
@@ -184,6 +230,10 @@ class MuseumController extends Controller
 	
 	public function forceDeleteAll()
 	{
+        if (!Gate::allows('force-delete-all')) {
+            abort(403, 'Только администратор может очищать корзину');
+        }
+        
 		$museums = Museum::onlyTrashed()->get();
 		
 		$deletedCount = 0;
