@@ -16,8 +16,14 @@ class UserController extends Controller
         return view('users.index', compact('users'));
     }
 
-    public function show(User $user)
+    public function show($identifier)
     {
+        if (is_numeric($identifier)) {
+            $user = User::findOrFail($identifier);
+        } else {
+            $user = User::whereRaw('LOWER(name) = LOWER(?)', [$identifier])->firstOrFail();
+        }
+        
         $museums = $user->museums()
             ->whereNull('deleted_at')
             ->with('popovers')

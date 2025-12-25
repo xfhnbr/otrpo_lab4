@@ -20,8 +20,11 @@ Route::middleware('auth')->group(function () {
 
     // маршруты пользователей
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
-    Route::get('/users/{user}/museums', [MuseumController::class, 'userMuseums'])
+    Route::get('/users/{identifier}', [UserController::class, 'show'])
+        ->where('identifier', '[0-9]+|[\w\-\_]+')
+        ->name('users.show');
+    Route::get('/users/{identifier}/museums', [MuseumController::class, 'index'])
+        ->where('identifier', '[0-9]+|[\w\-\_]+')
         ->name('users.museums.index');
     
     // маршруты для работы с корзиной (только для администраторов)
@@ -53,6 +56,6 @@ Route::middleware('auth')->group(function () {
 // просмотр музея
 Route::get('/museums/{id}', [MuseumController::class, 'show'])
     ->name('museums.show')
-    ->where('id', '[0-9]+');
+    ->where('id', '[0-9]+');    
 
 require __DIR__.'/auth.php';

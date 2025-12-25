@@ -13,19 +13,42 @@ class MuseumController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request, $identifier = null)
     {
+        $user = null;
+        
+        // Если передан identifier в URL (/users/{identifier}/museums)
+        if ($identifier) {
+            // Определяем, это ID или имя
+            if (is_numeric($identifier)) {
+                $user = User::findOrFail($identifier);
+            } else {
+                $user = User::whereRaw('LOWER(name) = LOWER(?)', [$identifier])->firstOrFail();
+            }
+            
+            $museums = Museum::where('user_id', $user->id)
+                            ->with('popovers')
+                            ->orderBy('id', 'asc')
+                            ->get();
+            
+            return view('museums.index', compact('museums', 'user'));
+        }
+        
+        // Если передан user_id в query string (?user_id=...)
         $user_id = $request->get('user_id');
-
         if ($user_id) {
             $user = User::findOrFail($user_id);
-            $museums = Museum::where('user_id', $user_id)->with('popovers')->orderBy('id', 'asc')->get();
+            $museums = Museum::where('user_id', $user_id)
+                            ->with('popovers')
+                            ->orderBy('id', 'asc')
+                            ->get();
             return view('museums.index', compact('museums', 'user'));
         }
         
         $museums = Museum::with('popovers')->orderBy('id', 'asc')->get();
         return view('museums.index', compact('museums'));
     }
+
 
     public function userMuseums(User $user)
     {

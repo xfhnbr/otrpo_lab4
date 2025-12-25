@@ -68,8 +68,6 @@ class User extends Authenticatable
         // заменяем пробелы на подчеркивания, удаляем спецсимволы
         $name = preg_replace('/[^\p{L}\p{N}\s]/u', '', $name); // удаляем спецсимволы
         $name = str_replace(' ', '_', trim($name)); // пробелы в подчеркивания
-        $name = Str::lower($name); // в нижний регистр
-        
         return $name;
     }
 
