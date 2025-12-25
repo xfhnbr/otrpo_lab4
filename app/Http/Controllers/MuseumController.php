@@ -29,10 +29,26 @@ class MuseumController extends Controller
         return view('museums.index', compact('museums'));
     }
 
-    public function userMuseums($user_id)
+    public function userMuseums(User $user)
     {
-        $user = User::findOrFail($user_id);
-        $museums = Museum::where('user_id', $user_id)->get();
+        $currentUser = auth()->user();
+        
+        $isAdmin = $currentUser && $currentUser->is_admin;
+        
+        if ($isAdmin) {
+            $museums = Museum::withTrashed()
+                ->where('user_id', $user->id)
+                ->with('popovers')
+                ->orderBy('deleted_at', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+        } else {
+            $museums = Museum::where('user_id', $user->id)
+                ->with('popovers')
+                ->orderBy('id', 'asc')
+                ->get();
+        }
+        
         return view('museums.index', compact('museums', 'user'));
     }
 
@@ -83,11 +99,19 @@ class MuseumController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Museum $museum)
+    public function show($id)
     {
-		if ($museum->trashed()) {
+        $museum = Museum::withTrashed()->find($id);
+
+        if(!$museum)
+        {
+            abort(404, 'Музей не найден');
+        }
+
+		if ($museum->trashed() && !Gate::allows('view-trash')) {
             abort(404, 'Музей был удален');
         }
+
         $museum->load('popovers');
         return view('museums.show', compact('museum'));
     }
@@ -95,10 +119,12 @@ class MuseumController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Museum $museum)
+    public function edit($id)
     {
-		if ($museum->trashed()) {
-            abort(404, 'Музей был удален');
+        $museum = Museum::withTrashed()->find($id);
+		
+        if (!$museum) {
+            abort(404, 'Музей не найден');
         }
         
         if (!Gate::allows('update-museum', $museum)) {
@@ -111,10 +137,12 @@ class MuseumController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Museum $museum)
+    public function update(Request $request, $id)
     {
-		if ($museum->trashed()) {
-            abort(404, 'Музей был удален');
+		$museum = Museum::withTrashed()->find($id);
+        
+        if (!$museum) {
+            abort(404, 'Музей не найден');
         }
 
         if (!Gate::allows('update-museum', $museum)) {

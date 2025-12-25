@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -48,6 +49,53 @@ class User extends Authenticatable
         ];
     }
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($user) {
+            $user->name = self::makeNameUrlCompatible($user->name);
+            
+            if ($user->isDirty('name')) {
+                $user->name = self::makeUniqueName($user->name, $user->id);
+            }
+        });
+    }
+
+
+    private static function makeNameUrlCompatible($name)
+    {
+        // заменяем пробелы на подчеркивания, удаляем спецсимволы
+        $name = preg_replace('/[^\p{L}\p{N}\s]/u', '', $name); // удаляем спецсимволы
+        $name = str_replace(' ', '_', trim($name)); // пробелы в подчеркивания
+        $name = Str::lower($name); // в нижний регистр
+        
+        return $name;
+    }
+
+    private static function makeUniqueName($name, $excludeId = null)
+    {
+        $originalName = $name;
+        $counter = 1;
+
+        $query = self::where('name', $name);
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        while ($query->exists()) {
+            $name = $originalName . '_' . $counter;
+            $counter++;
+            
+            $query = self::where('name', $name);
+            if ($excludeId) {
+                $query->where('id', '!=', $excludeId);
+            }
+        }
+
+        return $name;
+    }
+
     public function museums()
     {
         return $this->hasMany(Museum::class);
@@ -56,5 +104,10 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->is_admin === true;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'name';
     }
 }

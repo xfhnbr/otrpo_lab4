@@ -3,11 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MuseumController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 
-// публичные маршруты: просмотр всех музеев, просмотр музея
+// просмотр всех музеев
 Route::get('/', [MuseumController::class, 'index'])->name('home');
 Route::get('/museums', [MuseumController::class, 'index'])->name('museums.index');
-Route::get('/museums/{museum}', [MuseumController::class, 'show'])->name('museums.show');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -17,6 +17,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // маршруты пользователей
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
+    Route::get('/users/{user}/museums', [MuseumController::class, 'userMuseums'])
+        ->name('users.museums.index');
     
     // маршруты для работы с корзиной (только для администраторов)
     Route::get('/museums/trash', [MuseumController::class, 'trash'])
@@ -42,8 +48,11 @@ Route::middleware('auth')->group(function () {
     Route::put('/museums/{museum}', [MuseumController::class, 'update'])->name('museums.update');
     Route::patch('/museums/{museum}', [MuseumController::class, 'update']);
     Route::delete('/museums/{museum}', [MuseumController::class, 'destroy'])->name('museums.destroy');
-    Route::get('/users/{user_id}/museums', [MuseumController::class, 'userMuseums'])
-    ->name('users.museums.index');
 });
+
+// просмотр музея
+Route::get('/museums/{id}', [MuseumController::class, 'show'])
+    ->name('museums.show')
+    ->where('id', '[0-9]+');
 
 require __DIR__.'/auth.php';

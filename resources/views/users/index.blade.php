@@ -2,13 +2,13 @@
 <html lang="ru">
 <head>
     <meta charset="utf-8">
-    <title>Музеи Рима и Ватикана</title>
+    <title>Все пользователи - Музеи Рима и Ватикана</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @vite('resources/scss/app.scss')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-	<nav class="nav-header w-100">
+    <nav class="nav-header w-100">
         <div class="container d-flex align-items-center py-2">
             <div class="logo fs-1 text-center">d</div>
             <div class="site-name flex-grow-1 fs-1 fw-bold ms-3">Карта музеев Рима и Ватикана</div>
@@ -88,35 +88,19 @@
 
     <main>
         <div class="container">
-            @if(isset($user) && $user)
-                <h1 class="mt-4 mb-4">Музеи пользователя: {{ $user->name }} (ID: {{ $user->id }})</h1>
-                <p class="mb-4">
-                    <a href="{{ route('museums.index') }}" class="btn btn-outline-secondary btn-sm">
-                        ← Вернуться ко всем музеям
-                    </a>
-                </p>
-            @else
-                <h1 class="mt-4 mb-4">Все музеи Рима и Ватикана</h1>
-                
-                @if(auth()->check())
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Смотреть музеи пользователей:</h5>
-                        <div class="d-flex flex-wrap gap-2">
-                            @foreach(App\Models\User::all() as $u)
-                                <a href="{{ route('users.museums.index', $u->name) }}" 
-                                   class="btn btn-sm {{ $u->id == (auth()->id() ?? 0) ? 'btn-success' : 'btn-outline-primary' }}">
-                                    {{ $u->name }} (ID: {{ $u->id }})
-                                </a>
-                            @endforeach
-                        </div>
-                        <p class="mt-2 small text-muted">
-                            Или введите в адресной строке: <code>/users/{name}/museums</code>
-                        </p>
-                    </div>
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                    <h1 class="mt-4 mb-2">
+                        <i class="fas fa-users text-primary"></i> Все пользователи
+                    </h1>
+                    <p class="lead text-muted">Просмотр всех зарегистрированных пользователей и их музеев</p>
                 </div>
-                @endif
-            @endif
+                <div class="mt-4">
+                    <a href="{{ route('museums.index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Назад к музеям
+                    </a>
+                </div>
+            </div>
 
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -132,79 +116,80 @@
                 </div>
             @endif
 
-            <div class="row">
-                @foreach($museums as $museum)
-                <div class="col-12 col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 col-xxl-4 col-xxxl-3 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-img-top position-relative">
-                            <img src="{{ $museum->image_url }}" class="card-img-top img-fluid" alt="{{ $museum->name_ru }}" style="height: 200px; object-fit: cover;">
-                            <span class="position-absolute top-0 start-0 bg-dark text-white px-2 py-1 m-2 small">{{ $museum->name_original }}</span>
-                            @if($museum->trashed())
-                                <span class="position-absolute top-0 end-0 bg-danger text-white px-2 py-1 m-2 small">
-                                    <i class="fas fa-trash"></i> Удален
-                                </span>
-                            @endif
-                        </div>
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">{{ $museum->name_ru }}</h5>
-                            <p class="card-text flex-grow-1">{{ Str::limit($museum->description, 100) }}</p>
-                            
-                            <div class="museum-info mb-3">
-                                <small class="text-muted">
-                                    <i class="fas fa-map-marker-alt"></i> {{ Str::limit($museum->address, 30) }}<br>
-                                    <i class="fas fa-clock"></i> {{ $museum->working_hours }}<br>
-                                    <i class="fas fa-ticket-alt"></i> {{ $museum->formatted_price }}
-                                </small>
+            @if($users->isEmpty())
+                <div class="alert alert-info text-center py-5">
+                    <i class="fas fa-info-circle fa-3x mb-3"></i>
+                    <h4>Пользователи не найдены</h4>
+                    <p class="mb-0">В системе пока нет зарегистрированных пользователей</p>
+                </div>
+            @else
+                <div class="row">
+                    @foreach($users as $user)
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 shadow-sm border-0">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-start mb-3">
+                                        <div class="flex-grow-1 ms-3">
+                                            <h5 class="card-title mb-1">
+                                                {{ $user->name }}
+                                                @if($user->is_admin)
+                                                    <span class="badge bg-danger ms-1">Админ</span>
+                                                @endif
+                                            </h5>
+                                            <p class="card-text text-muted small mb-2">
+                                                <i class="fas fa-envelope"></i> {{ $user->email }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="user-info mb-3">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <div class="bg-light rounded p-2 text-center">
+                                                    <div class="text-primary fw-bold">{{ $user->museums_count }}</div>
+                                                    <div class="small text-muted">Музеев</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="bg-light rounded p-2 text-center">
+                                                    <div class="text-primary fw-bold">{{ $user->name }}</div>
+                                                    <div class="small text-muted">ID</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2">
+                                        <a href="{{ route('users.show', $user) }}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-user-circle"></i> Профиль
+                                        </a>
+                                        <a href="{{ route('users.museums.index', $user->name) }}" 
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-museum"></i> Музеи ({{ $user->museums_count }})
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent border-top">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-alt"></i> Зарегистрирован: 
+                                        {{ $user->created_at->format('d.m.Y') }}
+                                    </small>
+                                </div>
                             </div>
-                            
-                            <div class="btn-group mt-auto">
-								<a href="{{ route('museums.show', $museum) }}" class="btn btn-outline-primary btn-sm">
-									<i class="fas fa-info-circle"></i> Подробнее
-								</a>
-                                @if($museum->user_id)
-                                    <a href="{{ route('users.show', $museum->user->name) }}" 
-                                        class="btn btn-outline-info btn-sm" 
-                                        title="Смотреть профиль владельца">
-                                    <i class="fas fa-user"></i>
-                                </a>
-                                @else
-                                    <span class="text-muted">
-                                        <i class="fas fa-user"></i> Без владельца
-                                    </span>
-                                @endif
-                                
-							</div>
                         </div>
+                    @endforeach
+                </div>
+
+                @if($users->hasPages())
+                    <div class="mt-4">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center">
+                                {{ $users->links() }}
+                            </ul>
+                        </nav>
                     </div>
-                </div>
-                @endforeach
-            </div>
-            
-            @if($museums->isEmpty())
-                <div class="text-center py-5">
-                    <h3 class="text-muted">Музеи не найдены</h3>
-                    
-                    @if(isset($user) && $user)
-                        <p class="lead">У пользователя {{ $user->name }} пока нет музеев.</p>
-                        
-                        @auth
-                            @if($user->id === auth()->id())
-                                <a href="{{ route('museums.create') }}" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-plus"></i> Добавить музей
-                                </a>
-                            @endif
-                        @endauth
-                    @else
-                        <p class="lead">Пока нет ни одного музея в базе данных.</p> 
-                        
-                        @auth
-                            <a href="{{ route('museums.create') }}" class="btn btn-primary btn-lg">
-                                <i class="fas fa-plus"></i> Добавить музей
-                            </a>
-                        @endauth
-                    @endif
-                    
-                </div>
+                @endif
             @endif
         </div>
     </main>

@@ -21,45 +21,38 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Gate для проверки права редактирования музея
         Gate::define('update-museum', function ($user, $museum) {
-            // Пользователь может редактировать только созданные им музеи
-            // Администратор может редактировать все
-            return $user->id === $museum->user_id || $user->is_admin === true;
+            // пользователь может редактировать только созданные им музеи
+            // администратор может редактировать все
+            return $user->id === $museum->user_id && !$museum->trashed() || $user->is_admin === true;
         });
 
-        // Gate для проверки права удаления музея
         Gate::define('delete-museum', function ($user, $museum) {
-            // Пользователь может удалять только созданные им музеи
-            // Администратор может удалять все
-            return $user->id === $museum->user_id || $user->is_admin === true;
+            // пользователь может удалять только созданные им музеи
+            // администратор может удалять все
+            return !$museum->trashed() && ($user->id === $museum->user_id || $user->is_admin === true);
         });
 
-        // Gate для проверки права восстановления музея
         Gate::define('restore-museum', function ($user) {
-            // Только администратор может восстанавливать
+            // только администратор может восстанавливать
             return $user->is_admin === true;
         });
 
-        // Gate для проверки права полного удаления музея
         Gate::define('force-delete-museum', function ($user) {
-            // Только администратор может полностью удалять
+            // только администратор может полностью удалять
             return $user->is_admin === true;
         });
 
-        // Gate для проверки права просмотра корзины
         Gate::define('view-trash', function ($user) {
-            // Только администратор может просматривать корзину
+            // только администратор может просматривать корзину
             return $user->is_admin === true;
         });
 
-        // Gate для проверки права очистки всей корзины
         Gate::define('force-delete-all', function ($user) {
-            // Только администратор может очищать всю корзину
+            // только администратор может очищать всю корзину
             return $user->is_admin === true;
         });
 
-        // Gate для проверки, является ли пользователь администратором
         Gate::define('admin-access', function ($user) {
             return $user->is_admin === true;
         });

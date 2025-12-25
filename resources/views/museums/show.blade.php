@@ -40,6 +40,12 @@
                                     <span>Профиль</span>
                                 </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center py-2" href="{{ route('users.index') }}">
+                                    <i class="fas fa-users me-3" style="width: 20px; text-align: center;"></i>
+                                    <span>Все пользователи</span>
+                                </a>
+                            </li>
                             @if(auth()->user()->is_admin)
                                 <li>
                                     <a class="dropdown-item d-flex align-items-center py-2" href="{{ route('museums.trash') }}">
@@ -79,7 +85,7 @@
             </div>
         </div>
     </nav>  
-	
+        
     <main>
         <div class="container mt-4">
             <nav aria-label="breadcrumb">
@@ -97,24 +103,28 @@
             @endif
 
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <h1>{{ $museum->name_ru }}</h1>
                     <h4 class="text-muted">{{ $museum->name_original }}</h4>
-                    
-                    <div class="mt-4">
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-8">
+                    <div class="mb-4">
                         <img src="{{ $museum->image_url }}" class="img-fluid rounded shadow" alt="{{ $museum->name_ru }}" style="max-height: 500px; width: 100%; object-fit: cover;">
                     </div>
 
-                    <div class="mt-4">
+                    <div>
                         <h3>Описание</h3>
                         <div class="p-4 bg-light rounded">
                             {!! $museum->formatted_description !!}
                         </div>
                     </div>
                 </div>
-
+                
                 <div class="col-md-4">
-                    <div class="card shadow">
+                    <div class="card shadow" style="margin-top: 0;">
                         <div class="card-header bg-primary text-white">
                             <h5 class="mb-0"><i class="fas fa-info-circle"></i> Информация о музее</h5>
                         </div>
@@ -132,7 +142,7 @@
                             @endif
                             <p><strong><i class="fas fa-user"></i> Владелец:</strong><br>
                                 @if($museum->user)
-                                    <a href="{{ route('users.museums.index', $museum->user_id) }}">
+                                    <a href="{{ route('users.show', $museum->user->name) }}">
                                         <i class="fas fa-user"></i> {{ $museum->user->name }}
                                     </a>
                                 @else
@@ -149,18 +159,47 @@
                                     </a>
                                 @endcan
                                 
-                                @can('delete-museum', $museum)
-                                    <form action="{{ route('museums.destroy', $museum) }}" method="POST" 
-                                        onsubmit="return confirm('Вы уверены, что хотите удалить музей «{{ $museum->name_ru }}»?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger w-100">
-                                            <i class="fas fa-trash"></i> Удалить музей
-                                        </button>
-                                    </form>
-                                @endcan
+                                @if(!$museum->trashed())
+                                    @can('delete-museum', $museum)
+                                        <form action="{{ route('museums.destroy', $museum) }}" method="POST" 
+                                            onsubmit="return confirm('Вы уверены, что хотите удалить музей «{{ $museum->name_ru }}» в корзину?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger w-100">
+                                                <i class="fas fa-trash"></i> Удалить в корзину
+                                            </button>
+                                        </form>
+                                    @endcan
+                                @endif
                                 
-                                <p><strong>Дата добавления:</strong> {{ $museum->created_at_formatted }} ({{ $museum->created_at_human }})</p>
+                                @if($museum->trashed())
+                                    <div class="alert alert-warning mb-3">
+                                        <i class="fas fa-exclamation-triangle"></i> Этот музей находится в корзине
+                                    </div>
+                                    
+                                    <div class="d-flex gap-2">
+                                        @can('restore-museum')
+                                            <form action="{{ route('museums.restore', $museum->id) }}" method="POST" class="flex-grow-1">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success w-100">
+                                                    <i class="fas fa-undo me-1"></i> Восстановить
+                                                </button>
+                                            </form>
+                                        @endcan
+                                        
+                                        @can('force-delete-museum')
+                                            <form action="{{ route('museums.force-delete', $museum->id) }}" method="POST" class="flex-grow-1">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger w-100" 
+                                                        onclick="return confirm('ВНИМАНИЕ! Музей будет удален полностью без возможности восстановления. Продолжить?')">
+                                                    <i class="fas fa-fire me-1"></i> Удалить навсегда
+                                                </button>
+                                            </form>
+                                        @endcan
+                                    </div>
+                                @endif
+                                <p class="mt-3 mb-0"><strong>Дата добавления:</strong> {{ $museum->created_at_formatted }} ({{ $museum->created_at_human }})</p>
                             </div>
                         </div>
                     </div>
