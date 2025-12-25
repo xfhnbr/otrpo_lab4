@@ -9,41 +9,76 @@
 </head>
 <body>
 	<nav class="nav-header w-100">
-		<div class="container d-flex align-items-center py-2">
-			<div class="logo fs-1 text-center">d</div>
-			<div class="site-name flex-grow-1 fs-1 fw-bold ms-3">Карта музеев Рима и Ватикана</div>
-			@auth
-				<div class="me-3">
-					<span class="fs-5">Вы вошли как: <strong>{{ auth()->user()->name }}</strong></span>
-				</div>
-			@endauth
+        <div class="container d-flex align-items-center py-2">
+            <div class="logo fs-1 text-center">d</div>
+            <div class="site-name flex-grow-1 fs-1 fw-bold ms-3">Карта музеев Рима и Ватикана</div>
 
-			<div class="d-flex">
+            <div class="d-flex align-items-center">
                 @auth
-					<a href="{{ route('museums.create') }}" class="btn btn-primary fs-5 px-3 py-2 rounded">
-						Добавить музей
-					</a>
-				@else
-					<a href="{{ route('login') }}" class="btn btn-outline-primary fs-5 px-3 py-2 rounded">
-						Войти для добавления
-					</a>
-				@endauth
-
-				<a href="{{ route('museums.trash') }}" class="btn btn-outline-danger fs-5 px-3 py-2 rounded ms-2 position-relative">
-					<i class="fas fa-trash"></i> Корзина
-					@php
-						$trashCount = App\Models\Museum::onlyTrashed()->count();
-					@endphp
-					@if($trashCount > 0)
-						<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-							{{ $trashCount }}
-							<span class="visually-hidden">удаленных музеев</span>
-						</span>
-					@endif
-				</a>
-			</div>
-		</div>
-	</nav>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle fs-5 px-3 py-2 rounded" 
+                                type="button" 
+                                id="userDropdown"
+                                data-bs-toggle="dropdown" 
+                                data-bs-auto-close="true"
+                                aria-expanded="false">
+                            <i class="fas fa-user me-1"></i> {{ Str::limit(auth()->user()->name, 15) }}
+                            @if(auth()->user()->is_admin)
+                                <span class="badge bg-danger ms-1">A</span>
+                            @endif
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center py-2" href="{{ route('museums.create') }}">
+                                    <i class="fas fa-plus me-3" style="width: 20px; text-align: center;"></i>
+                                    <span>Добавить музей</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center py-2" href="{{ route('profile.edit') }}">
+                                    <i class="fas fa-user-edit me-3" style="width: 20px; text-align: center;"></i>
+                                    <span>Профиль</span>
+                                </a>
+                            </li>
+                            @if(auth()->user()->is_admin)
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center py-2" href="{{ route('museums.trash') }}">
+                                        <i class="fas fa-trash me-3" style="width: 20px; text-align: center;"></i>
+                                        <span>Корзина</span>
+                                        @php
+                                            $trashCount = \App\Models\Museum::onlyTrashed()->count();
+                                        @endphp
+                                        @if($trashCount > 0)
+                                            <span class="badge bg-danger ms-auto">{{ $trashCount }}</span>
+                                        @endif
+                                    </a>
+                                </li>
+                            @endif
+                            <li><hr class="dropdown-divider my-2"></li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}" class="w-100">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item d-flex align-items-center py-2 w-100 border-0 bg-transparent">
+                                        <i class="fas fa-sign-out-alt me-3" style="width: 20px; text-align: center;"></i>
+                                        <span>Выйти</span>
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                @else
+                    <div class="d-flex">
+                        <a href="{{ route('login') }}" class="btn btn-outline-primary fs-5 px-3 py-2 rounded me-2">
+                            <i class="fas fa-sign-in-alt me-1"></i> Войти
+                        </a>
+                        <a href="{{ route('register') }}" class="btn btn-primary fs-5 px-3 py-2 rounded">
+                            <i class="fas fa-user-plus me-1"></i> Регистрация
+                        </a>
+                    </div>
+                @endauth
+            </div>
+        </div>
+    </nav>
 
     <main>
         <div class="container">
@@ -148,16 +183,27 @@
             @if($museums->isEmpty())
                 <div class="text-center py-5">
                     <h3 class="text-muted">Музеи не найдены</h3>
+                    
                     @if(isset($user) && $user)
                         <p class="lead">У пользователя {{ $user->name }} пока нет музеев.</p>
+                        
+                        @auth
+                            @if($user->id === auth()->id())
+                                <a href="{{ route('museums.create') }}" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-plus"></i> Добавить музей
+                                </a>
+                            @endif
+                        @endauth
                     @else
-                        <p class="lead">Пока нет ни одного музея в базе данных.</p>
+                        <p class="lead">Пока нет ни одного музея в базе данных.</p> 
+                        
+                        @auth
+                            <a href="{{ route('museums.create') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus"></i> Добавить музей
+                            </a>
+                        @endauth
                     @endif
-                    @auth
-                        <a href="{{ route('museums.create') }}" class="btn btn-primary btn-lg">
-                            <i class="fas fa-plus"></i> Добавить музей
-                        </a>
-                    @endauth
+                    
                 </div>
             @endif
         </div>
@@ -165,7 +211,7 @@
     
     <footer>
         <div class="container footer">
-            <div class="author">Фамилия Имя</div>
+            <div class="author">Шестаков Дмитрий</div>
             <div class="socials">
                 <a href="#"><img src="{{ asset('storage/museums/vk.svg') }}" alt="VK" width="24"></a>
                 <a href="#"><img src="{{ asset('storage/museums/telegram.svg') }}" alt="Telegram" width="24"></a>

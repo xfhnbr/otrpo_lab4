@@ -37,6 +37,35 @@ class Museum extends Model
     ];
 	
 	protected $dates = ['deleted_at'];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::updating(function ($museum) {
+            if (auth()->check()) {
+                $user = auth()->user();
+                if ($user->id !== $museum->user_id && !$user->is_admin) {
+                    abort(403, 'Вы не можете редактировать этот музей');
+                }
+            }
+        });
+
+        static::deleting(function ($museum) {
+            if (!$museum->isForceDeleting() && auth()->check()) {
+                $user = auth()->user();
+                if ($user->id !== $museum->user_id && !$user->is_admin) {
+                    abort(403, 'Вы не можете удалить этот музей');
+                }
+            }
+        });
+
+        static::forceDeleting(function ($museum) {
+            if (auth()->check() && !auth()->user()->is_admin) {
+                abort(403, 'Только администратор может полностью удалять музеи');
+            }
+        });
+    }
 	
     public function popovers()
     {

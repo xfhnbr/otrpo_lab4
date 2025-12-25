@@ -25,7 +25,7 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('update-museum', function ($user, $museum) {
             // Пользователь может редактировать только созданные им музеи
             // Администратор может редактировать все
-            return $user->id === $museum->user_id;
+            return $user->id === $museum->user_id || $user->is_admin === true;
         });
 
         // Gate для проверки права удаления музея

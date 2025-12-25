@@ -150,7 +150,7 @@
 
     <footer class="mt-5">
         <div class="container footer">
-            <div class="author">Фамилия Имя</div>
+            <div class="author">Шестаков Дмитрий</div>
             <div class="socials">
                 <a href="#"><img src="{{ asset('storage/museums/vk.svg') }}" alt="VK" width="24"></a>
                 <a href="#"><img src="{{ asset('storage/museums/telegram.svg') }}" alt="Telegram" width="24"></a>
@@ -160,7 +160,6 @@
 
     @vite('resources/js/app.js')
     <script>
-        // Автоматическое скрытие алертов через 5 секунд
         setTimeout(function() {
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
