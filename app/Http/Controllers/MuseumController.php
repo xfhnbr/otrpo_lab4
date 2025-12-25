@@ -163,7 +163,11 @@ class MuseumController extends Controller
 
         if ($request->hasFile('image')) {
             if ($museum->image_filename) {
-                Storage::delete('public/museums/' . $museum->image_filename);
+                $path = 'museums/' . $museum->image_filename;
+                
+                if (Storage::disk('public')->exists($path)) {
+                    Storage::disk('public')->delete($path);
+                }
             }
             
             $image = $request->file('image');
