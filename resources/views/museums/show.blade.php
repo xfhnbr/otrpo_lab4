@@ -125,7 +125,7 @@
                 
                 <div class="col-md-4">
                     <div class="card shadow" style="margin-top: 0;">
-                        <div class="card-header bg-primary text-white">
+                        <div class="card-header text-white" style="background-color: #94a364;">
                             <h5 class="mb-0"><i class="fas fa-info-circle"></i> Информация о музее</h5>
                         </div>
                         <div class="card-body">

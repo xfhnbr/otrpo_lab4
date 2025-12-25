@@ -17,14 +17,12 @@ class MuseumController extends Controller
     {
         $user_id = $request->get('user_id');
 
-        // Если user_id передан - показываем музеи этого пользователя
         if ($user_id) {
             $user = User::findOrFail($user_id);
             $museums = Museum::where('user_id', $user_id)->with('popovers')->orderBy('id', 'asc')->get();
             return view('museums.index', compact('museums', 'user'));
         }
         
-        // Если user_id не передан - показываем все музеи
         $museums = Museum::with('popovers')->orderBy('id', 'asc')->get();
         return view('museums.index', compact('museums'));
     }

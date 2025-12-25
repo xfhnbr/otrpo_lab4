@@ -86,40 +86,37 @@
         </div>
     </nav>
 
-    <main>
+    <main class="user-profile-page">
         <div class="container py-4">
             <div class="row mb-4">
                 <div class="col">
-                    <nav aria-label="breadcrumb">
+                    <nav class="breadcrumb-nav" aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item">
-                                <a href="{{ route('users.index') }}">Пользователи</a>
+                                <a class="breadcrumb-link" href="{{ route('users.index') }}">Пользователи</a>
                             </li>
                             <li class="breadcrumb-item active" aria-current="page">{{ $user->name }}</li>
                         </ol>
                     </nav>
                     
-                    <div class="d-flex align-items-center">
-                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" 
-                             style="width: 70px; height: 70px;">
-                            <i class="fas fa-user text-white fa-2x"></i>
-                        </div>
-                        <div>
-                            <h1 class="mb-0">{{ $user->name }}</h1>
-                            <p class="text-muted mb-0">
-                                <i class="fas fa-envelope"></i> {{ $user->email }}
+                    <div class="user-header d-flex align-items-center">
+                        <div class="user-info-header">
+                            <h1 class="user-name-display mb-0">{{ $user->name }}</h1>
+                            <p class="user-email-display text-muted mb-0">
+                                <i class="fas fa-envelope email-icon"></i> {{ $user->email }}
                                 @if($user->is_admin)
-                                    <span class="badge bg-danger ms-2">Администратор</span>
+                                    <span class="badge badge-admin-display">Администратор</span>
                                 @endif
                             </p>
                         </div>
                     </div>
                 </div>
-                <div class="col-auto">
-                    <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">
+                
+                <div class="col-auto user-actions-header">
+                    <a href="{{ route('users.index') }}" class="btn btn-outline btn-back">
                         <i class="fas fa-arrow-left"></i> Все пользователи
                     </a>
-                    <a href="{{ route('users.museums.index', $user->name) }}" class="btn btn-primary">
+                    <a href="{{ route('users.museums.index', $user->name) }}" class="btn btn-primary btn-museums-header">
                         <i class="fas fa-museum"></i> Все музеи
                     </a>
                 </div>
@@ -141,57 +138,70 @@
 
             <div class="row">
                 <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Информация</h5>
+                    <div class="card user-info-card">
+                        <div class="card-header user-info-header">
+                            <h5 class="mb-0"><i class="fas fa-info-circle header-icon"></i> Информация</h5>
                         </div>
                         <div class="card-body">
-                            <p><strong><i class="fas fa-id-card"></i> ID:</strong> {{ $user->id }}</p>
-                            <p><strong><i class="fas fa-user-tag"></i> Роль:</strong>
+                            <p class="user-info-item">
+                                <i class="fas fa-id-card info-icon"></i> 
+                                <strong>ID:</strong> <span class="user-id">{{ $user->id }}</span>
+                            </p>
+                            <p class="user-info-item">
+                                <i class="fas fa-user-tag info-icon"></i> 
+                                <strong>Роль:</strong>
                                 @if($user->is_admin)
-                                    <span class="badge bg-danger">Администратор</span>
+                                    <span class="badge badge-role-admin">Администратор</span>
                                 @else
-                                    <span class="badge bg-secondary">Пользователь</span>
+                                    <span class="badge badge-role-user">Пользователь</span>
                                 @endif
                             </p>
-                            <p><strong><i class="fas fa-calendar-alt"></i> Зарегистрирован:</strong>
-                                {{ $user->created_at->format('d.m.Y H:i') }}
+                            <p class="user-info-item">
+                                <i class="fas fa-calendar-alt info-icon"></i> 
+                                <strong>Зарегистрирован:</strong>
+                                <span class="user-reg-date">{{ $user->created_at->format('d.m.Y H:i') }}</span>
                             </p>
-                            <p><strong><i class="fas fa-clock"></i> Последнее обновление:</strong>
-                                {{ $user->updated_at->format('d.m.Y H:i') }}
+                            <p class="user-info-item">
+                                <i class="fas fa-clock info-icon"></i> 
+                                <strong>Последнее обновление:</strong>
+                                <span class="user-update-date">{{ $user->updated_at->format('d.m.Y H:i') }}</span>
                             </p>
-                            <p><strong><i class="fas fa-museum"></i> Музеев создано:</strong>
-                                <span class="badge bg-primary">{{ $user->museums_count }}</span>
+                            <p class="user-info-item">
+                                <i class="fas fa-museum info-icon"></i> 
+                                <strong>Музеев создано:</strong>
+                                <span class="badge badge-museums-count">{{ $user->museums_count }}</span>
                             </p>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0"><i class="fas fa-museum"></i> Последние музеи</h5>
+                    <div class="card user-museums-card">
+                        <div class="card-header user-museums-header">
+                            <h5 class="mb-0"><i class="fas fa-museum header-icon"></i> Последние музеи</h5>
                         </div>
                         <div class="card-body">
                             @if($museums->isEmpty())
-                                <div class="text-center py-4">
-                                    <i class="fas fa-museum fa-3x text-muted mb-3"></i>
-                                    <h5>Музеи не найдены</h5>
-                                    <p class="text-muted">У этого пользователя пока нет музеев</p>
+                                <div class="empty-museums text-center py-4">
+                                    <i class="fas fa-museum empty-icon"></i>
+                                    <h5 class="empty-title">Музеи не найдены</h5>
+                                    <p class="empty-text text-muted">У этого пользователя пока нет музеев</p>
                                 </div>
                             @else
-                                <div class="list-group list-group-flush">
+                                <div class="museums-list list-group list-group-flush">
                                     @foreach($museums as $museum)
                                         <a href="{{ route('museums.show', $museum) }}" 
-                                           class="list-group-item list-group-item-action">
+                                        class="museum-item list-group-item list-group-item-action">
                                             <div class="d-flex w-100 justify-content-between">
-                                                <h6 class="mb-1">{{ $museum->name_ru }}</h6>
-                                                <small>{{ $museum->created_at->diffForHumans() }}</small>
+                                                <h6 class="museum-name">{{ $museum->name_ru }}</h6>
+                                                <small class="museum-time">{{ $museum->created_at->diffForHumans() }}</small>
                                             </div>
-                                            <p class="mb-1 text-muted">{{ $museum->short_description }}</p>
-                                            <small>
-                                                <i class="fas fa-ticket-alt"></i> {{ $museum->formatted_price }}
-                                                <i class="fas fa-map-marker-alt ms-3"></i> {{ $museum->address_oneline }}
+                                            <p class="museum-description mb-1 text-muted">{{ $museum->short_description }}</p>
+                                            <small class="museum-meta">
+                                                <i class="fas fa-ticket-alt meta-icon"></i> 
+                                                <span class="museum-price">{{ $museum->formatted_price }}</span>
+                                                <i class="fas fa-map-marker-alt meta-icon"></i> 
+                                                <span class="museum-address">{{ $museum->address_oneline }}</span>
                                             </small>
                                         </a>
                                     @endforeach
@@ -200,7 +210,7 @@
                                 @if($museums->hasMorePages())
                                     <div class="text-center mt-3">
                                         <a href="{{ route('users.museums.index', $user->name) }}" 
-                                           class="btn btn-outline-primary btn-sm">
+                                        class="btn btn-outline btn-show-all">
                                             Показать все музеи
                                         </a>
                                     </div>

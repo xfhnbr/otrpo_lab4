@@ -97,25 +97,6 @@
                 </p>
             @else
                 <h1 class="mt-4 mb-4">Все музеи Рима и Ватикана</h1>
-                
-                @if(auth()->check())
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Смотреть музеи пользователей:</h5>
-                        <div class="d-flex flex-wrap gap-2">
-                            @foreach(App\Models\User::all() as $u)
-                                <a href="{{ route('users.museums.index', $u->name) }}" 
-                                   class="btn btn-sm {{ $u->id == (auth()->id() ?? 0) ? 'btn-success' : 'btn-outline-primary' }}">
-                                    {{ $u->name }} (ID: {{ $u->id }})
-                                </a>
-                            @endforeach
-                        </div>
-                        <p class="mt-2 small text-muted">
-                            Или введите в адресной строке: <code>/users/{name}/museums</code>
-                        </p>
-                    </div>
-                </div>
-                @endif
             @endif
 
             @if(session('success'))

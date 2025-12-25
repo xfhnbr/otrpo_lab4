@@ -91,7 +91,7 @@
             <div class="d-flex justify-content-between align-items-start mb-4">
                 <div>
                     <h1 class="mt-4 mb-2">
-                        <i class="fas fa-users text-primary"></i> Все пользователи
+                        <i class="fas fa-users primary"></i> Все пользователи
                     </h1>
                     <p class="lead text-muted">Просмотр всех зарегистрированных пользователей и их музеев</p>
                 </div>
@@ -126,51 +126,50 @@
                 <div class="row">
                     @foreach($users as $user)
                         <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card h-100 shadow-sm border-0">
+                            <div class="card-user card h-100 shadow-sm border-0">
                                 <div class="card-body">
                                     <div class="d-flex align-items-start mb-3">
                                         <div class="flex-grow-1 ms-3">
                                             <h5 class="card-title mb-1">
                                                 {{ $user->name }}
                                                 @if($user->is_admin)
-                                                    <span class="badge bg-danger ms-1">Админ</span>
+                                                    <span class="badge badge-admin ms-1">Админ</span>
                                                 @endif
                                             </h5>
-                                            <p class="card-text text-muted small mb-2">
-                                                <i class="fas fa-envelope"></i> {{ $user->email }}
+                                            <p class="card-text text-muted small mb-2 user-email">
+                                                <i class="fas fa-envelope icon-email"></i> {{ $user->email }}
                                             </p>
                                         </div>
                                     </div>
                                     
-                                    <div class="user-info mb-3">
+                                    <div class="user-stats mb-3">
                                         <div class="row g-2">
-                                            <div class="col-6">
-                                                <div class="bg-light rounded p-2 text-center">
-                                                    <div class="text-primary fw-bold">{{ $user->museums_count }}</div>
-                                                    <div class="small text-muted">Музеев</div>
-                                                </div>
+                                            <div class="stats-item">
+                                                <div class="stats-count">{{ $user->museums_count }}</div>
+                                                <div class="stats-label">Активных музеев</div>
                                             </div>
-                                            <div class="col-6">
-                                                <div class="bg-light rounded p-2 text-center">
-                                                    <div class="text-primary fw-bold">{{ $user->name }}</div>
-                                                    <div class="small text-muted">ID</div>
-                                                </div>
+
+                                            @if(auth()->user()->is_admin)
+                                            <div class="stats-item">
+                                                <div class="stats-count stats-deleted">{{ $user->deleted_museums_count }}</div>
+                                                <div class="stats-label">Удалённых музеев</div>
                                             </div>
+                                            @endif
                                         </div>
                                     </div>
                                     
-                                    <div class="d-grid gap-2">
+                                    <div class="user-actions d-grid gap-2">
                                         <a href="{{ route('users.show', $user) }}" 
-                                           class="btn btn-outline-primary btn-sm">
+                                        class="btn btn-outline btn-profile btn-sm">
                                             <i class="fas fa-user-circle"></i> Профиль
                                         </a>
                                         <a href="{{ route('users.museums.index', $user->name) }}" 
-                                           class="btn btn-primary btn-sm">
-                                            <i class="fas fa-museum"></i> Музеи ({{ $user->museums_count }})
+                                        class="btn btn-primary btn-museums btn-sm">
+                                            <i class="fas fa-museum"></i> Музеи
                                         </a>
                                     </div>
                                 </div>
-                                <div class="card-footer bg-transparent border-top">
+                                <div class="card-footer">
                                     <small class="text-muted">
                                         <i class="fas fa-calendar-alt"></i> Зарегистрирован: 
                                         {{ $user->created_at->format('d.m.Y') }}
