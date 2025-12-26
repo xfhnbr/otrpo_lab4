@@ -16,10 +16,11 @@ class MuseumController extends Controller
     public function index(Request $request, $identifier = null)
     {
         $user = null;
+        $isAdmin = auth()->check() && auth()->user()->is_admin;
         
-        // Если передан identifier в URL (/users/{identifier}/museums)
+        // если передан identifier в URL (/users/{identifier}/museums)
         if ($identifier) {
-            // Определяем, это ID или имя
+            // определяем, это ID или имя
             if (is_numeric($identifier)) {
                 $user = User::findOrFail($identifier);
             } else {
@@ -27,6 +28,9 @@ class MuseumController extends Controller
             }
             
             $museums = Museum::where('user_id', $user->id)
+                            ->when($isAdmin, function ($query) {
+                                return $query->withTrashed();
+                            })
                             ->with('popovers')
                             ->orderBy('id', 'asc')
                             ->get();
@@ -34,18 +38,27 @@ class MuseumController extends Controller
             return view('museums.index', compact('museums', 'user'));
         }
         
-        // Если передан user_id в query string (?user_id=...)
+        // если передан user_id в query string (?user_id=...)
         $user_id = $request->get('user_id');
         if ($user_id) {
             $user = User::findOrFail($user_id);
             $museums = Museum::where('user_id', $user_id)
+                            ->when($isAdmin, function ($query) {
+                                return $query->withTrashed();
+                            })
                             ->with('popovers')
                             ->orderBy('id', 'asc')
                             ->get();
             return view('museums.index', compact('museums', 'user'));
         }
         
-        $museums = Museum::with('popovers')->orderBy('id', 'asc')->get();
+        $museums = Museum::when($isAdmin, function ($query) {
+                            return $query->withTrashed();
+                        })
+                        ->with('popovers')
+                        ->orderBy('id', 'asc')
+                        ->get();
+        
         return view('museums.index', compact('museums'));
     }
 
@@ -166,7 +179,7 @@ class MuseumController extends Controller
             abort(404, 'Музей не найден');
         }
 
-        if (!Gate::allows('update-museum', $museum)) {
+        if (!Gate::allows('update-museum', $museum)) {  
             abort(403, 'У вас нет прав для редактирования этого музея');
         }
 		

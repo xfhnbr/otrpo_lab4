@@ -21,6 +21,11 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::define('create-museum', function ($user) {
+            // создавать может любой авторизованный пользователь
+            return auth()->check();
+        });
+        
         Gate::define('update-museum', function ($user, $museum) {
             // пользователь может редактировать только созданные им музеи
             // администратор может редактировать все

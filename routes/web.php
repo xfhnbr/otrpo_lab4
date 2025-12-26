@@ -45,12 +45,19 @@ Route::middleware('auth')->group(function () {
         ->middleware('can:force-delete-all');
     
     // остальные CRUD маршруты
-    Route::get('/museums/create', [MuseumController::class, 'create'])->name('museums.create');
-    Route::post('/museums', [MuseumController::class, 'store'])->name('museums.store');
-    Route::get('/museums/{museum}/edit', [MuseumController::class, 'edit'])->name('museums.edit');
-    Route::put('/museums/{museum}', [MuseumController::class, 'update'])->name('museums.update');
+    Route::get('/museums/create', [MuseumController::class, 'create'])
+        ->name('museums.create')
+        ->middleware('can:create-museum');
+    Route::post('/museums', [MuseumController::class, 'store'])
+        ->name('museums.store')
+        ->middleware('can:create-museum');
+    Route::get('/museums/{museum}/edit', [MuseumController::class, 'edit'])
+        ->name('museums.edit');
+    Route::put('/museums/{museum}', [MuseumController::class, 'update'])
+        ->name('museums.update');
     Route::patch('/museums/{museum}', [MuseumController::class, 'update']);
-    Route::delete('/museums/{museum}', [MuseumController::class, 'destroy'])->name('museums.destroy');
+    Route::delete('/museums/{museum}', [MuseumController::class, 'destroy'])
+        ->name('museums.destroy');
 });
 
 // просмотр музея
