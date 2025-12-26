@@ -233,8 +233,16 @@ class MuseumController extends Controller
 		
 		$museum->delete();
 		
-		return redirect()->route('museums.index')
-			->with('success', 'Музей «' . $museum->name_ru . '» перемещен в корзину!');
+		$isAdmin = auth()->check() && auth()->user()->is_admin;
+    
+        if ($isAdmin) {
+            $message = 'Музей «' . $museum->name_ru . '» перемещен в корзину';
+        } else {
+            $message = 'Музей «' . $museum->name_ru . '» удален';
+        }
+        
+        return redirect()->route('museums.index')
+            ->with('success', $message);
 	}
 	
 	public function restore($id)
